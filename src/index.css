@@ -1,3 +1,12 @@
+/* Color Variables - Only from your image */
+:root {
+  /* Colors from your chart */
+  --primary-teal: #17424A;
+  --sand-light: #B7A98A;
+  --sand-dark: #A89A7A;
+  --dark-bg: #08161B;
+}
+
 /* Animation Classes */
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out forwards;
@@ -104,14 +113,14 @@ h1, h2, h3, .pirate-text {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a2a35;
+  background: var(--dark-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #17424a;
+  background: var(--primary-teal);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1d5a66;
+  background: var(--sand-dark);
 }
