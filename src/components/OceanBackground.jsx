@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const OceanBackground = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -13,15 +14,36 @@ const OceanBackground = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Use lighter video or fallback on mobile for better performance
+  useEffect(() => {
+    // Try to play video on mobile after user interaction
+    const playVideo = () => {
+      if (videoRef.current && isMobile) {
+        videoRef.current.play().catch(err => {
+          console.log('Video autoplay failed on mobile:', err);
+        });
+      }
+    };
+
+    // Add event listeners for user interaction on mobile
+    if (isMobile) {
+      document.addEventListener('touchstart', playVideo, { once: true });
+      document.addEventListener('click', playVideo, { once: true });
+      
+      return () => {
+        document.removeEventListener('touchstart', playVideo);
+        document.removeEventListener('click', playVideo);
+      };
+    }
+  }, [isMobile]);
+
   return (
     <video
-      autoPlay={!isMobile} // Disable autoplay on mobile to save bandwidth
+      ref={videoRef}
+      autoPlay={!isMobile} // Disable autoplay on mobile initially
       muted
       loop
       playsInline
-      preload={isMobile ? "none" : "metadata"} // Don't preload on mobile
-      poster="/assets/ocean-poster.jpg" // Poster image while loading
+      preload={isMobile ? "auto" : "metadata"} // Load video on mobile
       style={{
         position: "fixed",
         top: 0,
