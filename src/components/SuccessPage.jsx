@@ -102,19 +102,6 @@ export default function SuccessPage() {
         </p>
       </div>
 
-      {/* Logo in top right corner */}
-      <img
-        src="/assets/logo.png"
-        alt="Stand Up 2K26"
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          zIndex: 3,
-          height: 'clamp(60px, 10vw, 100px)',
-          objectFit: 'contain',
-        }}
-      />
     </div>
   );
 }

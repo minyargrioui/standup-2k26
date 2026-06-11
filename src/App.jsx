@@ -107,15 +107,16 @@ export default function App() {
         .audio-btn {
           background: none;
           border: none;
-          color: rgba(255, 240, 210, 0.55);
+          color: rgba(255, 240, 210, 0.85);
           font-family: inherit;
-          font-size: clamp(0.75rem, 2vw, 0.9rem);
+          font-size: clamp(0.9rem, 2.5vw, 1.1rem);
           letter-spacing: 0.18em;
           text-transform: uppercase;
           cursor: pointer;
-          padding: 0.3rem 0.1rem;
+          padding: 0.5rem 1rem;
           transition: color 0.3s ease, opacity 0.3s ease;
           position: relative;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.8);
         }
         .audio-btn::after {
           content: '';
@@ -153,6 +154,8 @@ export default function App() {
           justifyContent: 'flex-end',
           paddingBottom: 'clamp(2.5rem, 8vh, 5rem)',
           pointerEvents: promptVisible ? 'all' : 'none',
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)',
         }}>
           <div style={{
             opacity: promptVisible ? 1 : 0,
@@ -167,12 +170,13 @@ export default function App() {
             }}>♪</div>
 
             <p style={{
-              color: 'rgba(255, 240, 210, 0.45)',
+              color: 'rgba(255, 240, 210, 0.95)',
               fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               marginBottom: '1.2rem',
               fontWeight: '400',
+              textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7)',
             }}>
               Ahoy there, brave soul! The winds carry tales of adventure,<br />
               and every voyage needs its rhythm.<br /><br />
