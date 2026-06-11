@@ -41,26 +41,19 @@ export default function App() {
   // Background soundtrack - works on both mobile and desktop
   useEffect(() => {
     let audio = null;
-    let isAudioReady = false;
     
     const initializeAudio = () => {
       try {
-        audio = new Audio('/assets/pirate.mp3');
+        audio = new Audio('/assets/pirate.m4a');
         audio.loop = true;
-        audio.volume = 0.12;
-        audio.preload = 'metadata';
+        audio.volume = 0.10;
+        audio.preload = 'auto';
         
         // Audio event listeners
-        const handleCanPlayThrough = () => {
-          isAudioReady = true;
-          console.log('Audio ready to play');
-        };
-        
         const handleError = (error) => {
           console.log('Audio failed to load:', error);
         };
         
-        audio.addEventListener('canplaythrough', handleCanPlayThrough);
         audio.addEventListener('error', handleError);
         
         return audio;
@@ -75,7 +68,7 @@ export default function App() {
     
     // Handle user interaction to start audio
     const handleUserInteraction = async () => {
-      if (!audio || !isAudioReady) return;
+      if (!audio) return;
       
       try {
         // Create audio context if needed (for iOS Safari)
@@ -89,10 +82,15 @@ export default function App() {
           }
         }
         
+        // Try to play immediately, don't wait for canplaythrough
         await audio.play();
         console.log('Audio started playing');
       } catch (err) {
-        console.log('Audio play failed:', err.message);
+        console.log('Audio play failed, retrying:', err.message);
+        // If it fails, try again in a moment (file might still be loading)
+        setTimeout(() => {
+          audio.play().catch(() => console.log('Audio retry failed'));
+        }, 500);
       }
     };
     
