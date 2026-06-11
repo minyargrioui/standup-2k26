@@ -40,12 +40,12 @@ export default function Logo() {
 
   const logoStyle = {
     position: "fixed",
-    top: 28,
-    right: 28,
+    top: 'clamp(12px, 3vw, 28px)',
+    right: 'clamp(12px, 3vw, 28px)',
     zIndex: 100,
     transition: "opacity 0.4s ease-in-out",
     opacity: showLogo ? 1 : 0,
-    pointerEvents: showLogo ? "auto" : "none", // Prevent clicking when hidden
+    pointerEvents: showLogo ? "auto" : "none",
   };
 
   return (
@@ -54,7 +54,7 @@ export default function Logo() {
         src="/assets/logo.png"
         alt="Stand Up 2K26"
         style={{
-          width: 120,
+          width: 'clamp(60px, 12vw, 120px)',
           filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.7))",
         }}
       />

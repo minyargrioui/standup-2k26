@@ -1,158 +1,243 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import OceanBackground from "./components/OceanBackground";
-import Logo from "./components/Logo"
-import Boat from "./components/Boat"
+import Logo from "./components/Logo";
+import Boat from "./components/Boat";
 import TypewriterText from './components/TypewriterText';
 import useIntersectionObserver from './hooks/useIntersectionObserver';
 import WantedPosterSlideshow from './components/WantedPosterSlideshow';
+import Sponsors from './components/Sponsors';
+import RegistrationForm from './components/RegistrationForm';
 
 export default function App() {
   const [section2Ref, isSection2Visible] = useIntersectionObserver({ threshold: 0.3 });
   const [showImage, setShowImage] = useState(false);
   const [showAdditionalText, setShowAdditionalText] = useState(false);
-  
+
+  // Controls the full-screen dark overlay
+  const [overlayVisible, setOverlayVisible] = useState(true);
+  const [overlayDone, setOverlayDone] = useState(false);
+
+  // Controls when section 1 content starts its entrance
+  const [introReady, setIntroReady] = useState(false);
+
+  useEffect(() => {
+    // Start fading the overlay almost immediately
+    const fadeTimer = setTimeout(() => setOverlayVisible(false), 200);
+
+    // After overlay fade (1.5s transition), let content drift in
+    const readyTimer = setTimeout(() => {
+      setOverlayDone(true);
+      setTimeout(() => setIntroReady(true), 100);
+    }, 1800);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(readyTimer);
+    };
+  }, []);
+
+  // Background soundtrack
+  useEffect(() => {
+    const audio = new Audio('/assets/pirate.mp3');
+    audio.loop = true;
+    audio.volume = 0.12;
+    
+    // Add a small delay to avoid browser autoplay restrictions
+    const playTimer = setTimeout(() => {
+      audio.play().catch(err => {
+        console.log('Audio autoplay prevented by browser. Click anywhere to start music.');
+      });
+    }, 500);
+
+    // Allow user to start audio on first interaction
+    const handleUserInteraction = () => {
+      audio.play().catch(err => console.log('Audio play failed:', err));
+    };
+    
+    document.addEventListener('click', handleUserInteraction, { once: true });
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+
+    return () => {
+      clearTimeout(playTimer);
+      audio.pause();
+      audio.currentTime = 0;
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, []);
+
   return (
     <>
+      {/* ── Global keyframes ── */}
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(32px); }
+          to   { opacity: 1; transform: translateY(0);    }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+      `}</style>
+
+      {/* ── Dark overlay ── */}
+      {!overlayDone && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: '#000',
+            zIndex: 9999,
+            opacity: overlayVisible ? 1 : 0,
+            transition: 'opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: overlayVisible ? 'all' : 'none',
+          }}
+        />
+      )}
+
       <OceanBackground />
       <Logo />
       <Boat />
 
-      <div style={{ position: "relative", zIndex: 10 }}>
-        
-        {/* Section 1 */}
+      <div style={{ position: 'relative', zIndex: 10 }}>
+
+        {/* ── Section 1 ── */}
         <section
           id="1"
           style={{
-            height: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'clamp(1rem, 5vw, 2rem)',
           }}
         >
           <h1
             style={{
-              color: 'white',
-              fontSize: '60px',
-              textShadow: '2px 2px 8px rgba(0,0,0,0.8)',
+              color: 'rgba(255, 240, 210, 0.82)',
+              fontSize: 'clamp(1.8rem, 6vw, 4rem)',
+              textShadow: '0 2px 18px rgba(0,0,0,0.45), 0 0 60px rgba(0,0,0,0.25)',
               textAlign: 'center',
-              fontWeight: 'bold',
-              display: 'inline-block'
+              fontWeight: '500',
+              letterSpacing: '0.01em',
+              display: 'inline-block',
+              opacity: introReady ? 1 : 0,
+              transform: introReady ? 'translateY(0)' : 'translateY(40px)',
+              transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              maxWidth: '90vw',
+              lineHeight: '1.4',
             }}
           >
-            <TypewriterText 
-              lines={[
-                "The sea remembers every sailor who dares to cross it.",
-                "Now it's your turn to be remembered."
-              ]} 
-              speed={60}
-              delayBetweenLines={300}
-            />
+            {introReady && (
+              <TypewriterText
+                lines={[
+                  "The sea remembers every sailor who dares to cross it.",
+                  "Now it's your turn to be remembered.",
+                ]}
+                speed={55}
+                delayBetweenLines={400}
+              />
+            )}
           </h1>
         </section>
 
-        {/* Section 2 */}
-        <section 
-          id="2" 
+        {/* ── Section 2 ── */}
+        <section
+          id="2"
           ref={section2Ref}
-          style={{ 
-            height: "100vh", 
-            color: "white", 
-            padding: "2rem", 
-            display: "flex", 
-            flexDirection: "column",
-            alignItems: "center", 
-            justifyContent: "center",
-            gap: "1rem"
+          style={{
+            height: '100vh',
+            color: 'white',
+            padding: 'clamp(1rem, 5vw, 2rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 'clamp(0.5rem, 3vw, 1rem)',
           }}
         >
-          <h2 style={{ 
-            fontSize: "60px", 
-            fontWeight: 'bold', 
-            textAlign: "center", 
-            color: 'var(--sand-light)' 
-          }}>
-            <TypewriterText 
-              lines={["Welcome to"]} 
+          <h2
+            style={{
+              fontSize: 'clamp(2rem, 8vw, 4rem)',
+              fontFamily: "'Pieces of Eight', serif",
+              fontWeight: 'normal',
+              textAlign: 'center',
+              color: 'var(--sand-light)',
+              letterSpacing: 'clamp(1px, 2vw, 3px)',
+              textTransform: 'uppercase',
+            }}
+          >
+            <TypewriterText
+              lines={['Welcome to']}
               speed={60}
               trigger={isSection2Visible}
               onComplete={() => {
-                setTimeout(() => {
-                  setShowImage(true);
-                }, 800);
+                setTimeout(() => setShowImage(true), 600);
               }}
             />
           </h2>
-          
+
           {showImage && (
-            <div style={{ 
-              animation: 'fadeInUp 1.2s ease-out',
-              textAlign: 'center'
-            }}>
-              <img 
-                src="/assets/logo.png" 
-                alt="Description"
-                style={{ 
-                  width: '600px', 
+            <div
+              style={{
+                animation: 'fadeInUp 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+                textAlign: 'center',
+              }}
+            >
+              <img
+                src="/assets/logo.png"
+                alt="Event logo"
+                style={{
+                  width: 'clamp(300px, 80vw, 600px)',
                   height: 'auto',
                   borderRadius: '8px',
-                  marginBottom: '0.01rem'
+                  marginBottom: '0.01rem',
                 }}
               />
-              
+
               <div style={{ marginTop: '0rem' }}>
-                <TypewriterText 
-                  lines={["26-27-28 Juin"]}
-                  speed={50}
-                  trigger={showImage}
-                  onComplete={() => setShowAdditionalText(true)}
-                />
+                <div
+                  style={{
+                    fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
+                    fontFamily: "'Pieces of Eight', serif",
+                    fontWeight: 'normal',
+                    textAlign: 'center',
+                    color: 'var(--sand-light)',
+                    letterSpacing: 'clamp(1px, 2vw, 3px)',
+                    textTransform: 'uppercase',
+                    opacity: 0.7,
+                  }}
+                >
+                  <TypewriterText
+                    lines={['26-27-28 JUNE', 'The sea is calling you.']}
+                    speed={60}
+                    trigger={showImage}
+                    onComplete={() => setTimeout(() => setShowAdditionalText(true), 400)}
+                  />
+                </div>
               </div>
             </div>
           )}
-          
-          {showAdditionalText && (
-            <div style={{ 
-              animation: 'fadeInUp 0.8s ease-out',
-              fontSize: '1.5rem',
-              marginTop: '1rem',
-              color: 'var(--sand-dark)'
-            }}>
-              <TypewriterText 
-                lines={["The sea is calling you."]}
-                speed={50}
-                trigger={showAdditionalText}
-              />
-            </div>
-          )}
         </section>
-        
-        {/* Section 3 */}
-        <section 
-          id="3" 
-          style={{ 
-            minHeight: "100vh", 
-            color: "white", 
-            padding: "4rem 2rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
+
+        {/* ── Section 3 ── */}
+        <section
+          id="3"
+          style={{
+            minHeight: '100vh',
+            color: 'white',
+            padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <div
-              style={{
-                width: '100px',
-                height: '2px',
-                background: 'var(--sand-light)',
-                margin: '20px auto',
-              }}
-            />
-            
             <h2
               style={{
                 fontFamily: "'Pieces of Eight', serif",
-                fontSize: '1.5rem',
+                fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
                 color: 'var(--sand-light)',
                 opacity: 0.8,
               }}
@@ -160,33 +245,39 @@ export default function App() {
               The most wanted organizers of the seven seas
             </h2>
           </div>
-
           <WantedPosterSlideshow />
         </section>
-        
-        {/* Section 4 */}
-        <section id="4" style={{ 
-          height: "100vh", 
-          color: "white", 
-          padding: "2rem", 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center" 
-        }}>
-          <h2 style={{ fontSize: "3rem", color: 'var(--sand-light)' }}>🎟️ TICKETS</h2>
+
+        {/* ── Section 3.5 - Sponsors ── */}
+        <section
+          id="3.5"
+          style={{
+            minHeight: '100vh',
+            color: 'white',
+            padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2
+              style={{
+                fontFamily: "'Pieces of Eight', serif",
+                fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
+                color: 'var(--sand-light)',
+                opacity: 0.8,
+              }}
+            >
+              Those who fuel the voyage
+            </h2>
+          </div>
+          <Sponsors />
         </section>
-        
-        {/* Section 5 */}
-        <section id="5" style={{ 
-          height: "100vh", 
-          color: "white", 
-          padding: "2rem", 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center" 
-        }}>
-          <h2 style={{ fontSize: "3rem", color: 'var(--sand-light)' }}>📍 LOCATION</h2>
-        </section>
+
+        <RegistrationForm />
+
       </div>
     </>
   );
