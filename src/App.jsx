@@ -38,31 +38,80 @@ export default function App() {
     };
   }, []);
 
-  // Background soundtrack - optimized for mobile
+  // Background soundtrack - works on both mobile and desktop
   useEffect(() => {
-    // Don't autoload audio on mobile to save bandwidth
-    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    let audio = null;
+    let isAudioReady = false;
     
-    if (isMobile) return; // Skip audio on mobile
-    
-    const audio = new Audio('/assets/pirate.mp3');
-    audio.loop = true;
-    audio.volume = 0.12;
-    audio.preload = 'none'; // Don't preload
-    
-    // Allow user to start audio on interaction
-    const handleUserInteraction = () => {
-      audio.play().catch(err => console.log('Audio play failed:', err));
+    const initializeAudio = () => {
+      try {
+        audio = new Audio('/assets/pirate.mp3');
+        audio.loop = true;
+        audio.volume = 0.12;
+        audio.preload = 'metadata';
+        
+        // Audio event listeners
+        const handleCanPlayThrough = () => {
+          isAudioReady = true;
+          console.log('Audio ready to play');
+        };
+        
+        const handleError = (error) => {
+          console.log('Audio failed to load:', error);
+        };
+        
+        audio.addEventListener('canplaythrough', handleCanPlayThrough);
+        audio.addEventListener('error', handleError);
+        
+        return audio;
+      } catch (error) {
+        console.log('Audio initialization failed:', error);
+        return null;
+      }
     };
     
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    // Initialize audio
+    audio = initializeAudio();
+    
+    // Handle user interaction to start audio
+    const handleUserInteraction = async () => {
+      if (!audio || !isAudioReady) return;
+      
+      try {
+        // Create audio context if needed (for iOS Safari)
+        if (window.AudioContext || window.webkitAudioContext) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!window.audioContext) {
+            window.audioContext = new AudioContextClass();
+          }
+          if (window.audioContext.state === 'suspended') {
+            await window.audioContext.resume();
+          }
+        }
+        
+        await audio.play();
+        console.log('Audio started playing');
+      } catch (err) {
+        console.log('Audio play failed:', err.message);
+      }
+    };
+    
+    // Listen for any user interaction
+    const events = ['click', 'touchstart', 'touchend', 'keydown'];
+    events.forEach(eventType => {
+      document.addEventListener(eventType, handleUserInteraction, { once: true });
+    });
 
     return () => {
-      audio.pause();
-      audio.currentTime = 0;
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = '';
+        audio = null;
+      }
+      events.forEach(eventType => {
+        document.removeEventListener(eventType, handleUserInteraction);
+      });
     };
   }, []);
 
