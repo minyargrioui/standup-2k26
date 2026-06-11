@@ -36,7 +36,8 @@ const initialForm = {
 const positions = [
   'Member',
   'Team Leader',
-  'Vice President',
+  'Middle Manager',
+  'Local Committee Vice President',
   'Local Committee President',
 ];
 
