@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
-export default function SuccessPage() {
+export default function SuccessPage({ fullName = "Brave Soul" }) {
   const [textReady, setTextReady] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setTextReady(true), 500);
+    setTimeout(() => setTextReady(true), 800);
     // Disable page scrolling
     document.body.style.overflow = 'hidden';
     
@@ -15,26 +16,67 @@ export default function SuccessPage() {
   }, []);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-      }}
-    >
+    <>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0.5; }
+          to { opacity: 1; }
+        }
+      `}</style>
+      
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          background: 'linear-gradient(180deg, #1a4d5c 0%, #0f2a35 50%, #061419 100%)',
+        }}
+      >
+      {/* Loading overlay - shows until video loads */}
+      {!videoLoaded && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(180deg, #1a4d5c 0%, #0f2a35 50%, #061419 100%)',
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              color: 'rgba(255, 240, 210, 0.7)',
+              fontFamily: "'Pieces of Eight', serif",
+              fontSize: 'clamp(1rem, 3vw, 1.5rem)',
+              textAlign: 'center',
+              animation: 'fadeIn 1s ease-in-out infinite alternate',
+            }}
+          >
+            Preparing your voyage...
+          </div>
+        </div>
+      )}
+
       {/* Video Background */}
       <video
         autoPlay
         loop
         muted
         playsInline
+        onLoadedData={() => setVideoLoaded(true)}
+        onCanPlay={() => setVideoLoaded(true)}
         style={{
           position: 'absolute',
           top: 0,
@@ -43,6 +85,8 @@ export default function SuccessPage() {
           height: '100%',
           objectFit: 'cover',
           zIndex: 0,
+          opacity: videoLoaded ? 1 : 0,
+          transition: 'opacity 1s ease-in-out',
         }}
       >
         <source src="/assets/ocean2.mp4" type="video/mp4" />
@@ -69,39 +113,42 @@ export default function SuccessPage() {
           textAlign: 'center',
           color: 'white',
           padding: '2rem',
-          maxWidth: '800px',
-          opacity: textReady ? 1 : 0,
-          transform: textReady ? 'translateY(0)' : 'translateY(40px)',
-          transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          maxWidth: '900px',
+          opacity: textReady && videoLoaded ? 1 : 0,
+          transform: textReady && videoLoaded ? 'translateY(0)' : 'translateY(40px)',
+          transition: 'opacity 1.5s ease, transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
       >
         <h1
           style={{
             fontFamily: "'Pieces of Eight', serif",
-            fontSize: 'clamp(1rem, 6vw, 4rem)',
-            color: 'rgba(255, 240, 210, 0.9)',
-            textShadow: '0 2px 18px rgba(0,0,0,0.45), 0 0 60px rgba(0,0,0,0.25)',
-            marginBottom: '2rem',
-            letterSpacing: '2px',
-            lineHeight: 1.4,
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            color: 'rgba(255, 240, 210, 0.95)',
+            textShadow: '0 3px 24px rgba(0,0,0,0.7), 0 0 80px rgba(0,0,0,0.4)',
+            marginBottom: '2.5rem',
+            letterSpacing: '3px',
+            lineHeight: 1.3,
           }}
         >
-          The bottle has left the shore.
+          Farewell, {fullName}!
         </h1>
         <p
           style={{
             fontFamily: "'Pieces of Eight', serif",
-            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
-            color: 'rgba(255, 240, 210, 0.75)',
-            textShadow: '0 2px 10px rgba(0,0,0,0.35)',
-            letterSpacing: '1px',
+            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+            color: 'rgba(255, 240, 210, 0.85)',
+            textShadow: '0 2px 15px rgba(0,0,0,0.6)',
+            letterSpacing: '2px',
             lineHeight: 1.6,
           }}
         >
-          If the winds are favorable, it will reach the crew of Stand Up.
+          Your bottle has left the shore.<br />
+          If the winds are favorable, it will reach<br />
+          the crew of Stand Up.
         </p>
       </div>
 
     </div>
+    </>
   );
 }

@@ -450,7 +450,7 @@ export default function RegistrationForm() {
   };
 
   return formSubmitted ? (
-    <SuccessPage />
+    <SuccessPage fullName={form.fullName} />
   ) : (
     <section id="4" className="registration-sea">
       <div className="registration-shell">
