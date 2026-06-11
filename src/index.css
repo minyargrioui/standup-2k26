@@ -558,6 +558,10 @@ h2 {
     flex-direction: column;
   }
 
+  .form-actions {
+    flex-direction: column-reverse; /* Reverse order on mobile */
+  }
+
   .primary-button,
   .secondary-button {
     width: 100%;
@@ -720,9 +724,27 @@ section {
 
 /* Section 1 mobile improvements */
 @media (max-width: 760px) {
+  section[id="1"] {
+    padding: clamp(0.5rem, 2vw, 1rem) !important; /* Much closer to edges */
+  }
+  
   section[id="1"] h1 {
     line-height: 1.3 !important;
-    padding: 0 16px;
+    padding: 0 8px !important; /* Minimal side padding */
+    max-width: 95vw !important; /* Use almost full width */
+  }
+}
+
+/* Even smaller screens */
+@media (max-width: 480px) {
+  section[id="1"] {
+    padding: 8px !important; /* Very close to edges */
+  }
+  
+  section[id="1"] h1 {
+    padding: 0 4px !important; /* Almost touching sides */
+    max-width: 98vw !important;
+    font-size: clamp(1.6rem, 5vw, 3.5rem) !important; /* Slightly smaller for better fit */
   }
 }
 
@@ -847,6 +869,40 @@ html {
   .field-wrap select,
   .field-wrap textarea {
     min-height: 48px;
+  }
+}
+
+/* Slideshow scrollbar hiding */
+.slideshow-container::-webkit-scrollbar {
+  display: none;
+}
+
+.slideshow-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 768px) {
+  /* Reduce animations on mobile for better performance */
+  *, *::before, *::after {
+    animation-duration: 0.2s !important;
+    animation-delay: 0.1s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Optimize background for mobile */
+  video {
+    will-change: auto;
+  }
+  
+  /* Reduce shadows on mobile for better performance */
+  .paper-form {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+  }
+  
+  .paper-form::before {
+    box-shadow: inset 0 0 10px rgba(87, 54, 24, 0.08) !important;
   }
 }
 

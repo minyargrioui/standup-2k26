@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import OceanBackground from "./components/OceanBackground";
 import Logo from "./components/Logo";
 import Boat from "./components/Boat";
 import TypewriterText from './components/TypewriterText';
 import useIntersectionObserver from './hooks/useIntersectionObserver';
-import WantedPosterSlideshow from './components/WantedPosterSlideshow';
-import Sponsors from './components/Sponsors';
-import RegistrationForm from './components/RegistrationForm';
+
+// Lazy load heavy components
+const WantedPosterSlideshow = lazy(() => import('./components/WantedPosterSlideshow'));
+const Sponsors = lazy(() => import('./components/Sponsors'));
+const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
 
 export default function App() {
   const [section2Ref, isSection2Visible] = useIntersectionObserver({ threshold: 0.3 });
@@ -36,20 +38,19 @@ export default function App() {
     };
   }, []);
 
-  // Background soundtrack
+  // Background soundtrack - optimized for mobile
   useEffect(() => {
+    // Don't autoload audio on mobile to save bandwidth
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) return; // Skip audio on mobile
+    
     const audio = new Audio('/assets/pirate.mp3');
     audio.loop = true;
     audio.volume = 0.12;
+    audio.preload = 'none'; // Don't preload
     
-    // Add a small delay to avoid browser autoplay restrictions
-    const playTimer = setTimeout(() => {
-      audio.play().catch(err => {
-        console.log('Audio autoplay prevented by browser. Click anywhere to start music.');
-      });
-    }, 500);
-
-    // Allow user to start audio on first interaction
+    // Allow user to start audio on interaction
     const handleUserInteraction = () => {
       audio.play().catch(err => console.log('Audio play failed:', err));
     };
@@ -58,7 +59,6 @@ export default function App() {
     document.addEventListener('touchstart', handleUserInteraction, { once: true });
 
     return () => {
-      clearTimeout(playTimer);
       audio.pause();
       audio.currentTime = 0;
       document.removeEventListener('click', handleUserInteraction);
@@ -245,7 +245,9 @@ export default function App() {
               The most wanted organizers of the seven seas
             </h2>
           </div>
-          <WantedPosterSlideshow />
+          <Suspense fallback={<div style={{ color: 'white', textAlign: 'center' }}>Loading posters...</div>}>
+            <WantedPosterSlideshow />
+          </Suspense>
         </section>
 
         {/* ── Section 3.5 - Sponsors ── */}
@@ -273,10 +275,14 @@ export default function App() {
               Those who fuel the voyage
             </h2>
           </div>
-          <Sponsors />
+          <Suspense fallback={<div style={{ color: 'white', textAlign: 'center' }}>Loading sponsors...</div>}>
+            <Sponsors />
+          </Suspense>
         </section>
 
-        <RegistrationForm />
+        <Suspense fallback={<div style={{ color: 'white', textAlign: 'center', padding: '50px' }}>Loading registration...</div>}>
+          <RegistrationForm />
+        </Suspense>
 
       </div>
     </>

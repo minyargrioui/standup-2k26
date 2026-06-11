@@ -591,13 +591,22 @@ export default function RegistrationForm() {
               clearSignature={clearSignature}
             >
               <p>
-                I will represent myself as a STAND UP 2K26 delegate responsibly and will not harm the reputation of AIESEC. I will comply with all rules and pay for any damages I cause. I assume full responsibility for my actions, safety, and belongings during the conference.
+                I, would love to represent myself as a STAND UP 2K26 Delegate, a local conference hosted by LC BARDO, which will take place from 26 June 2026 until 28 June 2026 in Best Beach Hotel, Sousse. As a delegate of the Conference, I hereby confirm that I shall act wisely and responsibly at all times during the conference and not harm the reputation or brand of AIESEC.
               </p>
               <p>
-                I agree to respect Human Dignity & Integrity and condemn sexual exploitation, abuse and discrimination. I will follow Ethics/Harassment Prevention procedures and report any unwanted behavior I witness or experience.
+                I will comply with all applicable rules and regulations and other reasonable directions are given by AIESEC or others. In case anything is broken at the room, reception or bar you will be responsible to pay the damages. I agree to follow further instructions announced by AIESEC or the hotel security staff regarding my presence in the hotel and the safety of my stay.
               </p>
               <p>
-                I acknowledge that I have read and understood this agreement, accept the risks associated with STAND UP 2K26, and sign voluntarily.
+                I hereby declare that if, during the period specified above, any of my actions directly or indirectly cause any kind of damage, injury to an individual or if I participate in any illegal activities, I shall be personally responsible and liable for such actions and consequences.
+              </p>
+              <p>
+                I ASSUME FULL RESPONSIBILITY for understanding and following the rules and security practices associated with STAND UP and for my personal safety. I agree on respecting Human Dignity & Integrity I agree that I belong to an entity that condemns sexual exploitation, abuse and discrimination in all its forms.
+              </p>
+              <p>
+                I assume all the responsibility if anybody raises an ethical complaint toward me and I will follow all the procedures set by the committee responsible (Ethics/Harassment Prevention). I agree on reporting to the responsible committee (Ethics/Harassment Prevention) if I will ever witness or become subjected to any unwanted sexual behavior(s) inside the conference.
+              </p>
+              <p>
+                I ACKNOWLEDGE that I have read and understood this agreement, that I appreciate and accept these risks associated with STAND UP 2K26, and that I have executed this agreement voluntarily.
               </p>
             </AgreementStep>
           )}
@@ -615,13 +624,20 @@ export default function RegistrationForm() {
                 clearSignature={clearSignature}
               >
                 <p>
-                  I am responsible for my health and safety during STAND UP 2K26. I agree to follow the safety protocol: smoke only in open areas, distribute materials in open spaces, get permission before leaving the hotel, and report lost/found items.
+                  I am fully aware and acknowledged of the importance of maintaining safety in such social gatherings. I am personally responsible for my health and safety while attending STAND UP 2K26. As a result, I agree to comply with the following STAND UP 2K26 safety protocol:
+                </p>
+                <ul>
+                  <li>Smoking in the open area.</li>
+                  <li>Exchange of stationery (pens, paper).</li>
+                  <li>Coffee breaks are distributed in open spaces</li>
+                  <li>Leaving the hotel without permission.</li>
+                  <li>Informing in case of losing any personal stuff and in case of finding any lost belongings of other delegates.</li>
+                </ul>
+                <p>
+                  KEEP IN MIND THAT! Any alcoholic substance will be confiscated by the hotel security. The confiscated substances will be stored in the hotel and the delegate can claim them back once the conference is over.
                 </p>
                 <p>
-                  <strong>Important:</strong> Any alcoholic substances will be confiscated by hotel security and can be claimed after the conference ends.
-                </p>
-                <p>
-                  I agree to accept additional safety measures from the Organizing Committee or hotel staff. I confirm I have read and understood these terms and conditions.
+                  Lastly, I agree to accept any additional safety measures taken by the Organizing Committee or the hotel and respect them for the safety of everyone. I confirm that I have been given adequate time to receive, read through, and comprehend the terms and conditions included in this document and understand that I'm bound thereby.
                 </p>
               </AgreementStep>
 
