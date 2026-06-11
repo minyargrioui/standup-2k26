@@ -426,6 +426,8 @@ export default function RegistrationForm() {
 
       // Redirect to success page after 2 seconds
       setTimeout(() => {
+        // Dispatch event to stop audio in parent component
+        window.dispatchEvent(new CustomEvent('registration-submitted'));
         setFormSubmitted(true);
       }, 2000);
     } catch (error) {

@@ -66,11 +66,19 @@ export default function App() {
     const stop = () => { if (audio) { audio.pause(); audio.src = ''; audio = null; } };
     const onHide = () => { if (document.hidden && audio) audio.pause(); };
 
+    // Listen for registration submission to stop audio
+    const stopAudioOnSubmit = () => {
+      stop();
+      setAudioEnabled(false);
+    };
+    window.addEventListener('registration-submitted', stopAudioOnSubmit);
+
     ['beforeunload','unload','pagehide'].forEach(ev => window.addEventListener(ev, stop));
     document.addEventListener('visibilitychange', onHide);
 
     return () => {
       stop();
+      window.removeEventListener('registration-submitted', stopAudioOnSubmit);
       ['beforeunload','unload','pagehide'].forEach(ev => window.removeEventListener(ev, stop));
       document.removeEventListener('visibilitychange', onHide);
     };
@@ -160,13 +168,16 @@ export default function App() {
 
             <p style={{
               color: 'rgba(255, 240, 210, 0.45)',
-              fontSize: 'clamp(0.65rem, 1.8vw, 0.78rem)',
+              fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               marginBottom: '1.2rem',
               fontWeight: '400',
             }}>
-              Sail with music?
+              Ahoy there, brave soul! The winds carry tales of adventure,<br />
+              and every voyage needs its rhythm.<br /><br />
+              Shall the ship's accompany your journey
+              with the ancient songs of the seven seas?
             </p>
 
             <div style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'center' }}>
