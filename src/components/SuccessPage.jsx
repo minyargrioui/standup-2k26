@@ -78,7 +78,7 @@ export default function SuccessPage() {
         <h1
           style={{
             fontFamily: "'Pieces of Eight', serif",
-            fontSize: 'clamp(2rem, 6vw, 4rem)',
+            fontSize: 'clamp(1rem, 6vw, 4rem)',
             color: 'rgba(255, 240, 210, 0.9)',
             textShadow: '0 2px 18px rgba(0,0,0,0.45), 0 0 60px rgba(0,0,0,0.25)',
             marginBottom: '2rem',
