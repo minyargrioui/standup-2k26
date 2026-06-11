@@ -591,13 +591,13 @@ export default function RegistrationForm() {
               clearSignature={clearSignature}
             >
               <p>
-                I confirm that I will represent myself as a STAND'UP 2K26 delegate responsibly,
-                respect the organizing committee, follow venue rules, and assume full responsibility
-                for my personal safety and belongings during the conference.
+                I will represent myself as a STAND UP 2K26 delegate responsibly and will not harm the reputation of AIESEC. I will comply with all rules and pay for any damages I cause. I assume full responsibility for my actions, safety, and belongings during the conference.
               </p>
               <p>
-                I acknowledge that I have read and understood this agreement, accept the risks
-                associated with STAND'UP 2K26, and sign voluntarily.
+                I agree to respect Human Dignity & Integrity and condemn sexual exploitation, abuse and discrimination. I will follow Ethics/Harassment Prevention procedures and report any unwanted behavior I witness or experience.
+              </p>
+              <p>
+                I acknowledge that I have read and understood this agreement, accept the risks associated with STAND UP 2K26, and sign voluntarily.
               </p>
             </AgreementStep>
           )}
@@ -615,13 +615,13 @@ export default function RegistrationForm() {
                 clearSignature={clearSignature}
               >
                 <p>
-                  I agree to respect STAND'UP 2K26 safety measures, protect shared spaces, report
-                  lost belongings, avoid unsafe behavior, and follow instructions from the organizing
-                  committee and venue team.
+                  I am responsible for my health and safety during STAND UP 2K26. I agree to follow the safety protocol: smoke only in open areas, distribute materials in open spaces, get permission before leaving the hotel, and report lost/found items.
                 </p>
                 <p>
-                  I confirm that the information in this registration is accurate and that I understand
-                  the terms included in this document.
+                  <strong>Important:</strong> Any alcoholic substances will be confiscated by hotel security and can be claimed after the conference ends.
+                </p>
+                <p>
+                  I agree to accept additional safety measures from the Organizing Committee or hotel staff. I confirm I have read and understood these terms and conditions.
                 </p>
               </AgreementStep>
 
