@@ -99,7 +99,6 @@ const OceanBackground = () => {
           background: "linear-gradient(180deg, #1a4d5c 0%, #0f2a35 50%, #061419 100%)",
         }}
       >
-        <source src="/assets/ocean2.mp4" type="video/mp4" />
         <source src="/assets/ocean.mp4" type="video/mp4" />
       </video>
       
