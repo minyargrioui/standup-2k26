@@ -48,7 +48,7 @@ export default function App() {
       try {
         audio = new Audio('/assets/pirate.m4a');
         audio.loop = true;
-        audio.volume = 0.10;
+        audio.volume = 0.2;
         audio.preload = 'auto';
         try { await audio.play(); tried = true; return; } catch (_) {}
 
