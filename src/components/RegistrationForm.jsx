@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import SuccessPage from './SuccessPage';
 
+// ========== REGISTRATION DEADLINE CONFIGURATION ==========
+// Format: 'YYYY-MM-DD HH:MM:SS'
+const REGISTRATION_OPENS = '2026-04-01 00:00:00';
+const REGISTRATION_CLOSES = '2026-06-14 23:59:59';
+// ========================================================
+
 // Supabase client initialization with proper error handling
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -48,6 +54,39 @@ const steps = [
   'Swear Your Oath',
   'Master the Seas',
 ];
+
+// ========== REGISTRATION STATUS HELPER ==========
+function getRegistrationStatus() {
+  const now = new Date();
+  const openDate = new Date(REGISTRATION_OPENS);
+  const closeDate = new Date(REGISTRATION_CLOSES);
+  
+  if (now < openDate) {
+    return {
+      isOpen: false,
+      isClosed: false,
+      isComingSoon: true,
+      message: "Registration opens on " + openDate.toLocaleDateString(),
+    };
+  }
+  
+  if (now > closeDate) {
+    return {
+      isOpen: false,
+      isClosed: true,
+      isComingSoon: false,
+      message: "Registration Closed",
+    };
+  }
+  
+  return {
+    isOpen: true,
+    isClosed: false,
+    isComingSoon: false,
+    message: "Registration Open",
+  };
+}
+// =================================================
 
 function readStoredSubmissions() {
   try {
@@ -186,6 +225,7 @@ async function createSubmission(form) {
 }
 
 export default function RegistrationForm() {
+  const registrationStatus = getRegistrationStatus();
   const storedDraft = useMemo(readStoredDraft, []);
   const [step, setStep] = useState(Math.min(Math.max(storedDraft.step, 0), steps.length - 1));
   const [form, setForm] = useState(storedDraft.form);
@@ -381,6 +421,14 @@ export default function RegistrationForm() {
 
   const submitForm = async (event) => {
     event.preventDefault();
+    
+    // Double-check registration is still open before submitting
+    const currentStatus = getRegistrationStatus();
+    if (!currentStatus.isOpen) {
+      setSaveMessage('Registration is closed.');
+      return;
+    }
+    
     if (!validateFieldSet(4)) return;
 
     setIsSending(true);
@@ -399,17 +447,17 @@ export default function RegistrationForm() {
 
           if (!insertError) {
             supabaseSuccess = true;
-            setSaveMessage('✅ Welcome aboard! Your charter has been signed.');
+            setSaveMessage('Welcome aboard! Your charter has been signed.');
           } else {
             console.error('Supabase insert error:', insertError);
-            setSaveMessage(`⚠️ Saved locally. Supabase error: ${insertError.message}`);
+            setSaveMessage(`Saved locally. Supabase error: ${insertError.message}`);
           }
         } catch (supabaseError) {
           console.error('Supabase error:', supabaseError);
-          setSaveMessage('⚠️ Saved locally. Could not connect to Supabase.');
+          setSaveMessage('Saved locally. Could not connect to Supabase.');
         }
       } else {
-        setSaveMessage('💾 Welcome aboard! Your charter has been signed.');
+        setSaveMessage('Welcome aboard! Your charter has been signed.');
       }
       
       // Always save to localStorage as backup
@@ -433,7 +481,7 @@ export default function RegistrationForm() {
       }, 2000);
     } catch (error) {
       console.error('Submission error:', error);
-      setSaveMessage(`❌ Error: ${error.message}`);
+      setSaveMessage(`Error: ${error.message}`);
     } finally {
       setIsSending(false);
     }
@@ -449,6 +497,63 @@ export default function RegistrationForm() {
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  // If registration is closed or not open yet, show the closure screen
+  if (!registrationStatus.isOpen) {
+    return (
+      <section id="4" className="registration-sea">
+        <div className="registration-shell">
+          <div className="paper-form closure-paper">
+            <div className="paper-top">
+              <p className="eyebrow">STAND'UP 2K26</p>
+              <h2>{registrationStatus.isClosed ? "The Ship Has Sailed" : "Coming Soon"}</h2>
+            </div>
+            
+            <div className="closure-content">
+              <p className="closure-message">{registrationStatus.message}</p>
+              
+              {registrationStatus.isClosed ? (
+                <div className="closure-details">
+                  <p className="cute-paragraph">
+  Whispers on the wind say the captain is already drawing new maps. The sea has a habit of calling again. Stay close to the shore.
+                  </p>
+                  <button 
+                    className="secondary-button" 
+                    onClick={() => window.location.reload()}
+                    type="button"
+                  >
+                    Refresh Page
+                  </button>
+                </div>
+              ) : (
+                <div className="closure-details">
+                  <div className="countdown-timer">
+                    {(() => {
+                      const now = new Date();
+                      const open = new Date(REGISTRATION_OPENS);
+                      const diff = open - now;
+                      if (diff <= 0) return <span>Opening any moment now...</span>;
+                      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                      const hours = Math.floor((diff % (86400000)) / (3600000));
+                      const minutes = Math.floor((diff % 3600000) / 60000);
+                      return <span>{days}d {hours}h {minutes}m until registration opens</span>;
+                    })()}
+                  </div>
+                  <button 
+                    className="secondary-button" 
+                    onClick={() => window.location.reload()}
+                    type="button"
+                  >
+                    Check Again
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return formSubmitted ? (
     <SuccessPage fullName={form.fullName} />
@@ -482,17 +587,12 @@ export default function RegistrationForm() {
               <p className="scene-label">A New Adventure Awaits</p>
               <h3>The sea is calling.</h3>
               <p>
-
-              </p>The winds are favorable.
-                The maps are drawn.
-                The crew is ready.
-
-                Only one thing is missing.
-
-                You.
+                The winds are favorable. The maps are drawn. The crew is ready.
+                Only one thing is missing. You.
+              </p>
               {!supabaseAvailable && (
                 <div className="warning-box">
-                  <p>⚠️ Supabase is not configured. Data will be saved locally only.</p>
+                  <p>Supabase is not configured. Data will be saved locally only.</p>
                 </div>
               )}
               <dl className="event-notes">
@@ -502,11 +602,11 @@ export default function RegistrationForm() {
                 </div>
                 <div>
                   <dt>Venue</dt>
-                  <dd>Best Beach Hotel , Sousse</dd>
+                  <dd>Best Beach Hotel, Sousse</dd>
                 </div>
                 <div>
                   <dt>Fee</dt>
-                  <dd>155 DT (+50 DT/per night) </dd>
+                  <dd>155 DT (+50 DT/per night)</dd>
                 </div>
               </dl>
             </div>
@@ -661,7 +761,7 @@ export default function RegistrationForm() {
             {step < steps.length - 1 && <button className="primary-button" type="button" onClick={goNext}>Set Sail</button>}
             {step === steps.length - 1 && (
               <button className="primary-button" type="submit" disabled={isSending}>
-                {isSending ? 'Raising anchor...' : 'Sign the Charter'}
+                {isSending ? 'Processing...' : 'Sign the Charter'}
               </button>
             )}
           </div>
