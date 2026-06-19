@@ -4,7 +4,7 @@ import SuccessPage from './SuccessPage';
 
 // ========== REGISTRATION DEADLINE CONFIGURATION ==========
 // Format: 'YYYY-MM-DD HH:MM:SS'
-const REGISTRATION_OPENS = '2026-04-01 00:00:00';
+const REGISTRATION_OPENS = '2026-06-20 00:00:00';
 const REGISTRATION_CLOSES = '2026-06-25 23:59:59';
 // ========================================================
 
