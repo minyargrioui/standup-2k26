@@ -1,31 +1,41 @@
+// src/App.jsx
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useAudio } from './context/AudioContext';
+
 import OceanBackground from "./components/OceanBackground";
 import Logo from "./components/Logo";
 import Boat from "./components/Boat";
 import TypewriterText from './components/TypewriterText';
 import useIntersectionObserver from './hooks/useIntersectionObserver';
+import SharedRoomDispatching from './components/SharedRoomDispatching';
+import AudioControl from './components/AudioControl';
+import AudioPrompt from './components/AudioPrompt';
+import PasswordPopup from './components/PasswordPopup';
+import RoomTypePopup from './components/RoomTypePopup';
+import IndividualRoom from './components/IndividualRoom';
+import BookingSuccessPopup from './components/BookingSuccessPopup';
+import IndivBookingPage from './components/IndivBookingPage';
 
 const WantedPosterSlideshow = lazy(() => import('./components/WantedPosterSlideshow'));
 const Sponsors = lazy(() => import('./components/Sponsors'));
 const RegistrationForm = lazy(() => import('./components/RegistrationForm'));
 
-export default function App() {
+// Main page component
+function MainPage() {
   const [section2Ref, isSection2Visible] = useIntersectionObserver({ threshold: 0.3 });
   const [showImage, setShowImage] = useState(false);
   const [showAdditionalText, setShowAdditionalText] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(null);
+  const { audioEnabled } = useAudio();
+  const navigate = useNavigate();
 
-  const [overlayVisible, setOverlayVisible] = useState(true);
   const [overlayDone, setOverlayDone] = useState(false);
   const [introReady, setIntroReady] = useState(false);
-  const [promptVisible, setPromptVisible] = useState(false);
-
-  // Fade overlay in, then reveal audio prompt
-  useEffect(() => {
-    const fadeTimer = setTimeout(() => setOverlayVisible(false), 200);
-    const promptTimer = setTimeout(() => setPromptVisible(true), 1400);
-    return () => { clearTimeout(fadeTimer); clearTimeout(promptTimer); };
-  }, []);
+  const [showPasswordPopup, setShowPasswordPopup] = useState(false);
+  const [showRoomTypePopup, setShowRoomTypePopup] = useState(false);
+  const [showIndividualConfirm, setShowIndividualConfirm] = useState(false);
+  const [showBookingSuccess, setShowBookingSuccess] = useState(false);
+  const [bookedRoomNumber, setBookedRoomNumber] = useState('');
 
   // Once audio decision made, finish overlay and start intro
   useEffect(() => {
@@ -37,189 +47,116 @@ export default function App() {
     return () => clearTimeout(readyTimer);
   }, [audioEnabled]);
 
-  // Audio engine
-  useEffect(() => {
-    if (audioEnabled === null) return;
-    let audio = null;
-    let tried = false;
+  // Handle room dispatching button click
+  const handleRoomDispatchingClick = () => {
+    setShowPasswordPopup(true);
+  };
 
-    const init = async () => {
-      if (!audioEnabled) return;
-      try {
-        audio = new Audio('/assets/pirate.m4a');
-        audio.loop = true;
-        audio.volume = 0.4;
-        audio.preload = 'auto';
-        try { await audio.play(); tried = true; return; } catch (_) {}
+  // Handle successful password entry
+  const handlePasswordSuccess = () => {
+    setShowPasswordPopup(false);
+    setShowRoomTypePopup(true);
+  };
 
-        const tryPlay = async () => {
-          if (tried || !audioEnabled) return;
-          tried = true;
-          try { await audio.play(); } catch (e) { console.log('Audio failed:', e.message); }
-        };
-        ['click','touchstart'].forEach(ev => document.addEventListener(ev, tryPlay, { once: true }));
-      } catch (e) { console.log('Audio init failed:', e); }
-    };
+  // Handle room type selection
+  const handleRoomTypeSelect = (type) => {
+    setShowRoomTypePopup(false);
+    if (type === 'shared') {
+      navigate('/room-dispatching/shared');
+    } else if (type === 'individual') {
+      setShowIndividualConfirm(true);
+    }
+  };
 
-    init();
+  // Handle individual room confirmation
+  const handleIndividualConfirm = () => {
+    setShowIndividualConfirm(false);
+    // Generate a room number
+    const roomNumber = `RM-${String(Math.floor(Math.random() * 50) + 1).padStart(2, '0')}`;
+    setBookedRoomNumber(roomNumber);
+    // Show success popup
+    setShowBookingSuccess(true);
+  };
 
-    const stop = () => { if (audio) { audio.pause(); audio.src = ''; audio = null; } };
-    const onHide = () => { if (document.hidden && audio) audio.pause(); };
-
-    // Listen for registration submission to stop audio
-    const stopAudioOnSubmit = () => {
-      stop();
-      setAudioEnabled(false);
-    };
-    window.addEventListener('registration-submitted', stopAudioOnSubmit);
-
-    ['beforeunload','unload','pagehide'].forEach(ev => window.addEventListener(ev, stop));
-    document.addEventListener('visibilitychange', onHide);
-
-    return () => {
-      stop();
-      window.removeEventListener('registration-submitted', stopAudioOnSubmit);
-      ['beforeunload','unload','pagehide'].forEach(ev => window.removeEventListener(ev, stop));
-      document.removeEventListener('visibilitychange', onHide);
-    };
-  }, [audioEnabled]);
-
-  const decide = (val) => {
-    setPromptVisible(false);
-    setTimeout(() => setAudioEnabled(val), 400);
+  // Close booking success and navigate
+  const handleBookingSuccessClose = () => {
+    setShowBookingSuccess(false);
+    navigate('/my-booking');
   };
 
   return (
     <>
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(32px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes promptIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .audio-btn {
-          background: none;
-          border: none;
-          color: rgba(255, 240, 210, 0.85);
-          font-family: inherit;
-          font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          cursor: pointer;
-          padding: 0.5rem 1rem;
-          transition: color 0.3s ease, opacity 0.3s ease;
-          position: relative;
-          text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-        }
-        .audio-btn::after {
-          content: '';
-          position: absolute;
-          bottom: -2px;
-          left: 0;
-          width: 0;
-          height: 1px;
-          background: rgba(255, 240, 210, 0.5);
-          transition: width 0.35s ease;
-        }
-        .audio-btn:hover { color: rgba(255, 240, 210, 0.9); }
-        .audio-btn:hover::after { width: 100%; }
-      `}</style>
-
-      {/* Dark overlay */}
-      {!overlayDone && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: '#000', zIndex: 9999,
-          opacity: overlayVisible ? 1 : 0,
-          transition: 'opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1)',
-          pointerEvents: overlayVisible ? 'all' : 'none',
-        }} />
-      )}
-
-      {/* Audio prompt — minimal, floats over the ocean */}
+      {/* Audio Prompt - only shows when audio hasn't been decided */}
       {audioEnabled === null && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          zIndex: 9998,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          paddingBottom: 'clamp(2.5rem, 8vh, 5rem)',
-          pointerEvents: promptVisible ? 'all' : 'none',
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
-        }}>
-          <div style={{
-            opacity: promptVisible ? 1 : 0,
-            animation: promptVisible ? 'promptIn 1s ease both' : 'none',
-            textAlign: 'center',
-          }}>
-            {/* Small icon */}
-            <div style={{
-              fontSize: '1.4rem',
-              marginBottom: '0.9rem',
-              opacity: 0.5,
-            }}>♪</div>
-
-            <p style={{
-              color: 'rgba(255, 240, 210, 0.95)',
-              fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              marginBottom: '1.2rem',
-              fontWeight: '400',
-              textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7)',
-            }}>
-              Ahoy there, brave soul! The winds carry tales of adventure,<br />
-              and every voyage needs its rhythm.<br /><br />
-              Shall the ship's accompany your journey
-              with the ancient songs of the seven seas?
-            </p>
-
-            <div style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'center' }}>
-              <button className="audio-btn" onClick={() => decide(true)}>Aye</button>
-              <span style={{ color: 'rgba(255,240,210,0.2)', fontSize: '0.6rem' }}>·</span>
-              <button className="audio-btn" onClick={() => decide(false)}>Nay</button>
-            </div>
-          </div>
-        </div>
+        <AudioPrompt onComplete={() => setOverlayDone(true)} />
       )}
 
       <OceanBackground />
       <Logo />
       <Boat />
 
-      {/* Floating mute toggle */}
-      {audioEnabled !== null && (
-        <button
-          onClick={() => setAudioEnabled(v => !v)}
-          style={{
-            position: 'fixed', bottom: '24px', right: '24px',
-            zIndex: 1000,
-            background: 'rgba(0,0,0,0.35)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,240,210,0.2)',
-            borderRadius: '50%',
-            width: '44px', height: '44px',
-            color: 'rgba(255,240,210,0.7)',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-          title={audioEnabled ? 'Mute' : 'Unmute'}
-        >
-          {audioEnabled ? '♪' : '♩'}
-        </button>
-      )}
+      {/* Audio Control - shows on all pages after audio is decided */}
+      <AudioControl />
+
+      {/* Password Popup */}
+      <PasswordPopup
+        isOpen={showPasswordPopup}
+        onClose={() => setShowPasswordPopup(false)}
+        onSuccess={handlePasswordSuccess}
+        title="Captain's Quarters"
+      />
+
+      {/* Room Type Popup */}
+      <RoomTypePopup
+        isOpen={showRoomTypePopup}
+        onClose={() => setShowRoomTypePopup(false)}
+        onSelect={handleRoomTypeSelect}
+      />
+
+      {/* Individual Room Confirmation */}
+      <IndividualRoom
+        isOpen={showIndividualConfirm}
+        onClose={() => setShowIndividualConfirm(false)}
+        onConfirm={handleIndividualConfirm}
+      />
+
+      {/* Booking Success Popup */}
+      <BookingSuccessPopup
+        isOpen={showBookingSuccess}
+        onClose={handleBookingSuccessClose}
+        roomNumber={bookedRoomNumber}
+      />
+
+      {/* Room Dispatching Button */}
+      <button
+        onClick={handleRoomDispatchingClick}
+        style={{
+          position: 'fixed',
+          bottom: '80px',
+          right: '24px',
+          zIndex: 100,
+          background: 'var(--primary-teal)',
+          color: 'var(--sand-light)',
+          border: '2px solid var(--sand-light)',
+          padding: '10px 20px',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontFamily: "'Pieces of Eight', serif",
+          fontSize: '14px',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.background = 'var(--sand-light)';
+          e.target.style.color = 'var(--dark-bg)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.background = 'var(--primary-teal)';
+          e.target.style.color = 'var(--sand-light)';
+        }}
+      >
+        🚪 Room Dispatching
+      </button>
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         {audioEnabled !== null && (
@@ -360,5 +297,16 @@ export default function App() {
         )}
       </div>
     </>
+  );
+}
+
+// Main App component with routes
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<MainPage />} />
+      <Route path="/room-dispatching/shared" element={<SharedRoomDispatching />} />
+      <Route path="/my-booking" element={<IndivBookingPage />} />
+    </Routes>
   );
 }
