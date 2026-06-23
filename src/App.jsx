@@ -127,8 +127,9 @@ function MainPage() {
         roomNumber={bookedRoomNumber}
       />
 
-      {/* Room Dispatching Button */}
-      <button
+      {/* Room Dispatching Button - temporarily hidden */}
+      {false && (
+        <button
         onClick={handleRoomDispatchingClick}
         style={{
           position: 'fixed',
@@ -157,6 +158,7 @@ function MainPage() {
       >
         🚪 Room Dispatching
       </button>
+      )}
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         {audioEnabled !== null && (
