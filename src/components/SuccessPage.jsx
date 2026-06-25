@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function SuccessPage({ fullName = "Brave Soul" }) {
+export default function SuccessPage({ fullName = "Brave Soul", registrationCode = '' }) {
   const [textReady, setTextReady] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
 
@@ -146,6 +146,21 @@ export default function SuccessPage({ fullName = "Brave Soul" }) {
           If the winds are favorable, it will reach<br />
           the crew of Stand Up.
         </p>
+        {registrationCode && (
+          <p
+            style={{
+              marginTop: '2rem',
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
+              color: 'rgba(255, 215, 0, 0.95)',
+              letterSpacing: '1px',
+              lineHeight: 1.5,
+            }}
+          >
+            Save your room access code:<br />
+            <strong style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)' }}>{registrationCode}</strong>
+          </p>
+        )}
       </div>
 
     </div>

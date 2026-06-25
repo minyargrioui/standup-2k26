@@ -556,7 +556,7 @@ export default function RegistrationForm() {
   }
 
   return formSubmitted ? (
-    <SuccessPage fullName={form.fullName} />
+    <SuccessPage fullName={form.fullName} registrationCode={submitted?.id} />
   ) : (
     <section id="4" className="registration-sea">
       <div className="registration-shell">

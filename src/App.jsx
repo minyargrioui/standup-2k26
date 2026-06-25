@@ -9,6 +9,9 @@ import Boat from "./components/Boat";
 import TypewriterText from './components/TypewriterText';
 import useIntersectionObserver from './hooks/useIntersectionObserver';
 import SharedRoomDispatching from './components/SharedRoomDispatching';
+import AdminRoomDispatching from './components/AdminRoomDispatching';
+import RoomAccessSystem from './components/RoomAccessSystem';
+import RoomInterface from './components/RoomInterface';
 import AudioControl from './components/AudioControl';
 import AudioPrompt from './components/AudioPrompt';
 import PasswordPopup from './components/PasswordPopup';
@@ -52,10 +55,18 @@ function MainPage() {
     setShowPasswordPopup(true);
   };
 
-  // Handle successful password entry
-  const handlePasswordSuccess = () => {
+  // Handle successful password entry with access level
+  const handlePasswordSuccess = (accessLevel) => {
     setShowPasswordPopup(false);
-    setShowRoomTypePopup(true);
+    
+    // Check if admin access
+    if (accessLevel === 'admin') {
+      // Direct admin access - bypass room type selection
+      navigate('/room-dispatching/admin');
+    } else {
+      // Regular user - show room type selection or direct to new room access
+      navigate('/room-access');
+    }
   };
 
   // Handle room type selection
@@ -103,7 +114,7 @@ function MainPage() {
         isOpen={showPasswordPopup}
         onClose={() => setShowPasswordPopup(false)}
         onSuccess={handlePasswordSuccess}
-        title="Captain's Quarters"
+        title="Room Access"
       />
 
       {/* Room Type Popup */}
@@ -127,36 +138,44 @@ function MainPage() {
         roomNumber={bookedRoomNumber}
       />
 
-      {/* Room Dispatching Button - temporarily hidden */}
-      {false && (
+      {/* Room Dispatching Button - NOW VISIBLE AND PROMINENT */}
+      {true && (
         <button
         onClick={handleRoomDispatchingClick}
         style={{
           position: 'fixed',
-          bottom: '80px',
-          right: '24px',
-          zIndex: 100,
-          background: 'var(--primary-teal)',
-          color: 'var(--sand-light)',
-          border: '2px solid var(--sand-light)',
-          padding: '10px 20px',
-          borderRadius: '8px',
+          bottom: '30px',
+          right: '30px',
+          zIndex: 150,
+          background: 'linear-gradient(135deg, #F7E9B8 0%, #E6D18C 100%)',
+          color: '#08161B',
+          border: '3px solid #08161B',
+          padding: '18px 30px',
+          borderRadius: '15px',
           cursor: 'pointer',
           fontFamily: "'Pieces of Eight', serif",
-          fontSize: '14px',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
           transition: 'all 0.3s ease',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          boxShadow: '0 8px 25px rgba(247, 233, 184, 0.35), 0 4px 12px rgba(0,0,0,0.3)',
+          animation: 'pulse 2s infinite',
         }}
         onMouseEnter={(e) => {
-          e.target.style.background = 'var(--sand-light)';
-          e.target.style.color = 'var(--dark-bg)';
+          e.target.style.background = 'linear-gradient(135deg, #08161B 0%, #17424A 100%)';
+          e.target.style.color = '#F7E9B8';
+          e.target.style.transform = 'scale(1.1) translateY(-3px)';
+          e.target.style.boxShadow = '0 12px 35px rgba(247, 233, 184, 0.45), 0 8px 20px rgba(0,0,0,0.5)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.background = 'var(--primary-teal)';
-          e.target.style.color = 'var(--sand-light)';
+          e.target.style.background = 'linear-gradient(135deg, #F7E9B8 0%, #E6D18C 100%)';
+          e.target.style.color = '#08161B';
+          e.target.style.transform = 'scale(1) translateY(0px)';
+          e.target.style.boxShadow = '0 8px 25px rgba(247, 233, 184, 0.35), 0 4px 12px rgba(0,0,0,0.3)';
         }}
       >
-        🚪 Room Dispatching
+        Room Dispatching
       </button>
       )}
 
@@ -308,6 +327,9 @@ export default function App() {
     <Routes>
       <Route path="/" element={<MainPage />} />
       <Route path="/room-dispatching/shared" element={<SharedRoomDispatching />} />
+      <Route path="/room-dispatching/admin" element={<AdminRoomDispatching />} />
+      <Route path="/room-access" element={<RoomAccessSystem />} />
+      <Route path="/room-interface" element={<RoomInterface />} />
       <Route path="/my-booking" element={<IndivBookingPage />} />
     </Routes>
   );

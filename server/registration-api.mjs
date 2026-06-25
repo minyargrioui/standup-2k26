@@ -171,6 +171,47 @@ function readBody(request) {
   });
 }
 
+function normalizeRegistrationCode(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function registrationCodesFor(entry) {
+  if (!entry || typeof entry !== 'object') return [];
+
+  return [
+    entry.id,
+    entry.code,
+    entry.registrationCode,
+    entry.registration_code,
+    entry.accessKey,
+    entry.access_key,
+    entry.delegate?.id,
+    entry.delegate?.code,
+    entry.delegate?.registrationCode,
+    entry.delegate?.registration_code,
+    entry.delegate?.accessKey,
+    entry.delegate?.access_key,
+  ]
+    .map(normalizeRegistrationCode)
+    .filter(Boolean);
+}
+
+function delegateFromRegistration(match) {
+  return {
+    id:
+      match.id ||
+      match.registration_code ||
+      match.registrationCode ||
+      match.access_key ||
+      match.accessKey ||
+      match.delegate?.id ||
+      '',
+    full_name: match.full_name || match.delegate?.fullName || match.delegate?.full_name || '',
+    email: match.email || match.delegate?.email || '',
+    nickname: match.nickname || match.delegate?.nickname || '',
+  };
+}
+
 const server = createServer(async (request, response) => {
   if (request.method === 'OPTIONS') {
     sendJson(response, 204, {});
@@ -180,6 +221,36 @@ const server = createServer(async (request, response) => {
   if (request.url === '/api/registrations' && request.method === 'GET') {
     const registrations = await readRegistrations();
     sendJson(response, 200, { registrations, file: registrationsFile });
+    return;
+  }
+
+  if (request.url?.startsWith('/api/registrations/verify') && request.method === 'GET') {
+    try {
+      const url = new URL(request.url, 'http://127.0.0.1');
+      const code = normalizeRegistrationCode(url.searchParams.get('code'));
+      if (!code) {
+        sendJson(response, 200, { valid: false, error: 'Missing registration code.' });
+        return;
+      }
+
+      const registrations = await readRegistrations();
+      const match = registrations.find((entry) => registrationCodesFor(entry).includes(code));
+      if (!match) {
+        sendJson(response, 200, { valid: false, error: 'Registration code not found.' });
+        return;
+      }
+
+      sendJson(response, 200, {
+        valid: true,
+        delegate: delegateFromRegistration(match),
+      });
+    } catch (error) {
+      console.error('Registration verification error:', error);
+      sendJson(response, 200, {
+        valid: false,
+        error: 'Could not verify registration code.',
+      });
+    }
     return;
   }
 

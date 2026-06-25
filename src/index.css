@@ -990,12 +990,12 @@ html {
 }
 
 .warning-box {
-  background-color: #fff3cd;
-  border: 1px solid #ffc107;
+  background-color: #fbf1cf;
+  border: 1px solid #e7d390;
   border-radius: 4px;
   padding: 12px;
   margin: 16px 0;
-  color: #856404;
+  color: #6f5a1f;
 }
 
 .field-error {
@@ -1074,4 +1074,148 @@ html {
   border-radius: 8px;
   font-family: 'Georgia', 'Times New Roman', serif;
   font-style: italic;
+}
+
+/* Room access and room details responsive layout */
+.room-top-action,
+.room-choice-button,
+.room-type-button,
+.room-action-button,
+.room-actions button {
+  min-height: 48px;
+}
+
+.room-choice-button,
+.room-type-button,
+.room-action-button,
+.room-actions button {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .room-page-logo {
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .room-page-logo img {
+    width: 82px !important;
+  }
+
+  .room-top-action {
+    top: 12px !important;
+    left: 12px !important;
+    max-width: calc(100vw - 118px) !important;
+    min-height: 44px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .room-status-alert {
+    top: 70px !important;
+    width: calc(100vw - 24px) !important;
+    padding: 12px 14px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .room-access-shell,
+  .room-interface-shell {
+    align-items: flex-start !important;
+    padding: 104px 12px 24px !important;
+  }
+
+  .room-access-panel,
+  .room-interface-panel {
+    border-radius: 8px !important;
+    padding: 22px 14px !important;
+  }
+
+  .room-access-panel h1,
+  .room-interface-panel h1 {
+    line-height: 1.08 !important;
+    letter-spacing: 1px !important;
+  }
+
+  .room-choice-grid,
+  .room-type-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .room-choice-button {
+    padding: 22px 14px !important;
+    font-size: 1.35rem !important;
+  }
+
+  .room-type-button {
+    padding: 18px 12px !important;
+    font-size: 1.25rem !important;
+  }
+
+  .room-action-button {
+    padding: 16px 12px !important;
+    font-size: 1.35rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .room-chip-row {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .room-chip-row span {
+    width: 100% !important;
+  }
+
+  .room-occupancy-grid,
+  .room-members-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .room-actions {
+    flex-direction: column !important;
+  }
+
+  .room-actions button {
+    width: 100% !important;
+    font-size: 1.05rem !important;
+  }
+
+  .room-meta {
+    font-size: 0.78rem !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .room-page-logo img {
+    width: 68px !important;
+  }
+
+  .room-top-action {
+    max-width: calc(100vw - 96px) !important;
+    font-size: 0.82rem !important;
+    padding: 9px 10px !important;
+  }
+
+  .room-access-shell,
+  .room-interface-shell {
+    padding-top: 92px !important;
+  }
+
+  .room-access-panel,
+  .room-interface-panel {
+    padding: 18px 10px !important;
+  }
+
+  .room-choice-button {
+    font-size: 1.2rem !important;
+  }
+
+  .room-type-button,
+  .room-action-button {
+    font-size: 1.15rem !important;
+  }
 }

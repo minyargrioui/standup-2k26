@@ -1,5 +1,6 @@
 // src/components/PasswordPopup.jsx
 import { useState, useEffect, useRef } from 'react';
+import { validateDelegateCode } from '../services/roomService';
 
 export default function PasswordPopup({ isOpen, onClose, onSuccess, title = "Enter Access Code" }) {
   const [password, setPassword] = useState('');
@@ -18,7 +19,7 @@ export default function PasswordPopup({ isOpen, onClose, onSuccess, title = "Ent
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!password.trim()) {
@@ -29,21 +30,59 @@ export default function PasswordPopup({ isOpen, onClose, onSuccess, title = "Ent
     setIsLoading(true);
     setError('');
 
-    // For now, just simulate validation
-    // Later: Replace with actual database check
-    setTimeout(() => {
-      setIsLoading(false);
+    // Admin access codes
+    const adminCodes = {
+      'CAPTAIN2026': 'admin',        // Master admin access
+      'BEPS-ADMIN': 'admin',         // Event admin access
+      'MENYA-BOSS': 'admin',         // Personal admin code
+      'STANDUP2K26': 'admin',        // Event-specific admin
+    };
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
       
-      // TEMPORARY: Accept any non-empty password for testing
-      // Replace this with actual validation logic
-      if (password.trim().length > 0) {
-        // Success - close popup and navigate
-        onSuccess();
+      const userPassword = password.trim().toUpperCase();
+      
+      if (adminCodes[userPassword]) {
+        const accessLevel = adminCodes[userPassword];
+        
+        // Store admin access level in sessionStorage
+        sessionStorage.setItem('adminAccess', accessLevel);
+        sessionStorage.setItem('accessCode', userPassword);
+        
+        // Show success message for admin access
+        if (accessLevel === 'admin') {
+          console.log('🏴‍☠️ ADMIN ACCESS GRANTED - Welcome Captain!');
+          // You could add a temporary success message here
+          setTimeout(() => {
+            alert('🏴‍☠️ ADMIN ACCESS GRANTED\nWelcome aboard, Captain!');
+          }, 100);
+        }
+        
+        onSuccess(accessLevel);
         onClose();
       } else {
-        setError('Invalid access code. Please try again.');
+        const delegateResult = await validateDelegateCode(password);
+        if (!delegateResult.success) {
+          setIsLoading(false);
+          setError(delegateResult.error || 'Invalid access code. Use your registration code.');
+          sessionStorage.removeItem('adminAccess');
+          sessionStorage.removeItem('accessCode');
+          sessionStorage.removeItem('verifiedDelegate');
+          return;
+        }
+
+        sessionStorage.removeItem('adminAccess');
+        sessionStorage.setItem('accessCode', password.trim());
+        sessionStorage.setItem('verifiedDelegate', JSON.stringify(delegateResult.delegate));
+        onSuccess('user');
+        onClose();
       }
-    }, 800);
+    } catch (err) {
+      console.error('Access code verification error:', err);
+      setIsLoading(false);
+      setError('Could not verify access code. Please try again.');
+    }
   };
 
   const handleClose = () => {
@@ -140,7 +179,7 @@ export default function PasswordPopup({ isOpen, onClose, onSuccess, title = "Ent
             marginBottom: '25px',
             opacity: 0.8,
           }}>
-            Speak the secret password to enter the captain's quarters
+            Enter your registration code to access room dispatching
           </p>
 
           <form onSubmit={handleSubmit}>
